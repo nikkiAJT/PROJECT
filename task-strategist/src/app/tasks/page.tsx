@@ -8,7 +8,7 @@ export default function TasksPage() {
     <main className="container-fluid vh-100 d-flex flex-column">
       <header className="row bg-light border-bottom">
         <div className="col d-flex justify-content-between align-items-center">
-          <h1 className="p-3 mb-0">This Week's Tasks</h1>
+          <h1 className="p-3 mb-0">This Week&apos;s Tasks</h1>
           <a href="/strategy" className="btn btn-secondary me-3">Edit Strategy</a>
         </div>
       </header>

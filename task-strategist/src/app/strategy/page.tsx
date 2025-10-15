@@ -45,7 +45,7 @@ function StrategyChat() {
 
     const { appState, setAppState } = context;
     const userMessage: Message = { id: Date.now().toString(), text: inputValue, sender: 'user' };
-    let newMessages = [...appState.messages, userMessage];
+    const newMessages = [...appState.messages, userMessage];
     let aiResponse: Message | null = null;
 
     if (step === 'AWAITING_OBJECTIVE') {

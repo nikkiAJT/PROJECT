@@ -1,4 +1,4 @@
-import { AppState, ConversationState, Message, SubTask, Task } from "./types";
+import { AppState, ConversationState, Message, Task } from "./types";
 import { v4 as uuidv4 } from 'uuid';
 
 // Handles the multi-step conversation for setting priority
