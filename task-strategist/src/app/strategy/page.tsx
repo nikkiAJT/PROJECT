@@ -9,43 +9,43 @@ type ConversationStep = 'AWAITING_OBJECTIVE' | 'AWAITING_KEY_RESULTS' | 'COMPLET
 
 function StrategyChat() {
   const context = useContext(AppContext);
-  
+  const [inputValue, setInputValue] = useState('');
+  const [step, setStep] = useState<ConversationStep>('AWAITING_OBJECTIVE');
+
+  // Effect to start the conversation
+  useEffect(() => {
+    if (context && context.appState.messages.length === 0) {
+      const initialMessage: Message = {
+        id: 'init',
+        sender: 'ai',
+        text: "Let's start by defining your main objective for this week. What is the single most important thing you want to achieve?",
+      };
+      context.setAppState(prevState => ({ ...prevState, messages: [initialMessage] }));
+    }
+  }, [context]);
+
+  // Effect to handle redirection when the process is complete
+  useEffect(() => {
+    if (context && step === 'COMPLETED') {
+      const redirectMessage: Message = {
+        id: 'redirect',
+        sender: 'ai',
+        text: "Great! Your weekly strategy is set. Redirecting you to the task board...",
+      };
+      context.setAppState(prevState => ({ ...prevState, messages: [...prevState.messages, redirectMessage] }));
+      
+      setTimeout(() => {
+        window.location.href = '/tasks'; // Using a direct browser redirect for reliability
+      }, 2000);
+    }
+  }, [step, context]);
+
   // Handle case where context is not yet available
   if (!context) {
     return <div>Loading...</div>; // Or some other placeholder
   }
 
   const { appState, setAppState } = context;
-  const [inputValue, setInputValue] = useState('');
-  const [step, setStep] = useState<ConversationStep>('AWAITING_OBJECTIVE');
-
-  // Effect to start the conversation
-  useEffect(() => {
-    if (appState.messages.length === 0) {
-      const initialMessage: Message = {
-        id: 'init',
-        sender: 'ai',
-        text: "Let's start by defining your main objective for this week. What is the single most important thing you want to achieve?",
-      };
-      setAppState(prevState => ({ ...prevState, messages: [initialMessage] }));
-    }
-  }, [appState.messages.length, setAppState]);
-
-  // Effect to handle redirection when the process is complete
-  useEffect(() => {
-    if (step === 'COMPLETED') {
-      const redirectMessage: Message = {
-        id: 'redirect',
-        sender: 'ai',
-        text: "Great! Your weekly strategy is set. Redirecting you to the task board...",
-      };
-      setAppState(prevState => ({ ...prevState, messages: [...prevState.messages, redirectMessage] }));
-      
-      setTimeout(() => {
-        window.location.href = '/tasks'; // Using a direct browser redirect for reliability
-      }, 2000);
-    }
-  }, [step, setAppState]);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
