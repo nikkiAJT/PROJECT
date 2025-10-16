@@ -9,20 +9,27 @@ type ConversationStep = 'AWAITING_OBJECTIVE' | 'AWAITING_KEY_RESULTS' | 'COMPLET
 
 function StrategyChat() {
   const context = useContext(AppContext);
+  
+  // Handle case where context is not yet available
+  if (!context) {
+    return <div>Loading...</div>; // Or some other placeholder
+  }
+
+  const { appState, setAppState } = context;
   const [inputValue, setInputValue] = useState('');
   const [step, setStep] = useState<ConversationStep>('AWAITING_OBJECTIVE');
 
   // Effect to start the conversation
   useEffect(() => {
-    if (context && context.appState.messages.length === 0) {
+    if (appState.messages.length === 0) {
       const initialMessage: Message = {
         id: 'init',
         sender: 'ai',
         text: "Let's start by defining your main objective for this week. What is the single most important thing you want to achieve?",
       };
-      context.setAppState(prevState => ({ ...prevState, messages: [initialMessage] }));
+      setAppState(prevState => ({ ...prevState, messages: [initialMessage] }));
     }
-  }, [context]);
+  }, [appState.messages.length, setAppState]);
 
   // Effect to handle redirection when the process is complete
   useEffect(() => {
@@ -32,18 +39,17 @@ function StrategyChat() {
         sender: 'ai',
         text: "Great! Your weekly strategy is set. Redirecting you to the task board...",
       };
-      context?.setAppState(prevState => ({ ...prevState, messages: [...prevState.messages, redirectMessage] }));
+      setAppState(prevState => ({ ...prevState, messages: [...prevState.messages, redirectMessage] }));
       
       setTimeout(() => {
         window.location.href = '/tasks'; // Using a direct browser redirect for reliability
       }, 2000);
     }
-  }, [step, context]);
+  }, [step, setAppState]);
 
   const handleSendMessage = () => {
-    if (!inputValue.trim() || !context) return;
+    if (!inputValue.trim()) return;
 
-    const { appState, setAppState } = context;
     const userMessage: Message = { id: Date.now().toString(), text: inputValue, sender: 'user' };
     const newMessages = [...appState.messages, userMessage];
     let aiResponse: Message | null = null;
@@ -78,7 +84,7 @@ function StrategyChat() {
   return (
     <div className="d-flex flex-column h-100">
       <div className="flex-grow-1 p-3 overflow-auto">
-        {context?.appState.messages.map(msg => (
+        {appState.messages.map(msg => (
           <div key={msg.id} className={`mb-2 ${msg.sender === 'ai' ? 'text-start' : 'text-end'}`}>
             <span className={`d-inline-block p-2 rounded ${msg.sender === 'ai' ? 'bg-light' : 'bg-primary text-white'}`}>
               {msg.text}
@@ -105,11 +111,20 @@ function StrategyChat() {
 }
 
 export default function StrategyPage() {
+  const context = useContext(AppContext);
+
+  const handleClear = () => {
+    if (context) {
+      context.clearAll();
+    }
+  };
+
   return (
     <main className="container-fluid vh-100 d-flex flex-column">
       <header className="row bg-light border-bottom">
-        <div className="col">
+        <div className="col d-flex justify-content-between align-items-center">
           <h1 className="p-3 mb-0">Set Your Weekly Strategy</h1>
+          <button className="btn btn-danger me-3" onClick={handleClear}>Clear All</button>
         </div>
       </header>
       <div className="row flex-grow-1">

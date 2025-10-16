@@ -29,8 +29,12 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     localStorage.setItem('taskStrategistState', JSON.stringify(appState));
   }, [appState]);
 
+  const clearAll = () => {
+    setAppState(initialAppState);
+  };
+
   return (
-    <AppContext.Provider value={{ appState, setAppState }}>
+    <AppContext.Provider value={{ appState, setAppState, clearAll }}>
       {children}
     </AppContext.Provider>
   );
